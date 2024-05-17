@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+//atualiza a imagem do pokemon que aparece na HUD
 public class BattleUnit : MonoBehaviour
 {
     [SerializeField] PokemonBase _base;

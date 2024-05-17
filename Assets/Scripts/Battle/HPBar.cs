@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//atualiza a barra de vida no HUD
 public class HPBar : MonoBehaviour
 {
     [SerializeField] GameObject health;

@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
 
-
+//cria um menu na unity para poder criar os script
 [CreateAssetMenu(fileName = "Pokemon", menuName = "Pokemon/Create new pokemon")]
 
+//Criando a base de dados dos pokemons
 public class PokemonBase : ScriptableObject
 {
     [SerializeField] string name;
@@ -35,12 +36,12 @@ public class PokemonBase : ScriptableObject
     //{
     //    return name;
     //}
-    //forma de propriedade (abaixo) transforma em variavel em vez de chamar uma função.
+    //forma de propriedade (abaixo) = transforma em variavel em vez de chamar uma função.
     public string Name
     {
         get { return name; }
     }
-    //mesma coisa 
+    //tambem forma propriedade
     //  public string Name => name;
     public string Description
     {

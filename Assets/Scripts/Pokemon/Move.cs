@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//classe para saber os status das habilidades/Moves
 public class Move 
 {
     public MoveBasePokemon Base { get; set; }

@@ -2,7 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//cria menu para criar scrpit de Habilidades/move do Pokemon
 [CreateAssetMenu(fileName = "Move", menuName = "Pokemon/Create new move")]
+//Criando base de dados para as habilidades
 public class MoveBasePokemon : ScriptableObject
 {
     [SerializeField] string name;

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-
+//atualiza informcao do pokemon na HUD
 public class BattleHud : MonoBehaviour
 {
     [SerializeField] TextMeshProUGUI nameText;

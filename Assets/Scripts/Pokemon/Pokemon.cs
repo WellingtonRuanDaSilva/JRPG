@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//classe de pokemons para calculo de status por level e movimentos
 public class Pokemon
 {
     public PokemonBase Base { get; set; }
@@ -28,6 +29,7 @@ public class Pokemon
         }
     }
 
+    //calcular status com base no level do pokemon
     public int Attack
     {
         get { return Mathf.FloorToInt((Base.Attack * Level) / 100f) + 5; }

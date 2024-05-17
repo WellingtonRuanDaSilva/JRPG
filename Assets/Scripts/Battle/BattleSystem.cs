@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//controla as informacoes que aparecem na tela de combate
 public class BattleSystem : MonoBehaviour
 {
     [SerializeField] BattleUnit playerUnit;
