@@ -23,4 +23,19 @@ public class MoveBasePokemon : ScriptableObject
     public int Power => power;
     public int Accuracy => accuracy;
     public int PP => pp;
+
+    public bool IsSpecial
+    {
+        get
+        {
+            if (type == PokemonType.Fire || type == PokemonType.Water || type == PokemonType.Ice || type == PokemonType.Eletric || type == PokemonType.Dragon)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
 }
