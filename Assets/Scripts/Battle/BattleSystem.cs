@@ -5,36 +5,40 @@ using UnityEngine;
 using UnityEngine.Assertions.Must;
 
 //Variaveis para os estados de batalha
-public enum BattleState { Start, PlayerAction, PlayerMove, EnemyMove, Busy}
+public enum BattleState { Start, ActionSelection, MoveSelection, PerformMove, Busy, PartyScreen, BattleOver }
 
 //controla as informacoes que aparecem na tela de combate
 public class BattleSystem : MonoBehaviour
 {
     [SerializeField] BattleUnit playerUnit;
-    [SerializeField] BattleHud playerHud;
     [SerializeField] BattleUnit enemyUnit;
-    [SerializeField] BattleHud enemyHud;
     [SerializeField] BattleDialogBox dialogBox;
+    [SerializeField] PartyScreen partyScreen;
 
     public event Action<bool> OnBattleOver;
 
     BattleState state;
     int currentAction;
     int currentMove;
+    int currentMember;
 
-    public void StartBattle()
+    PokemonParty playerParty;
+    Pokemon wildPokemon;
+
+    public void StartBattle(PokemonParty playerParty, Pokemon wildPokemon)
     {
+        this.playerParty = playerParty;
+        this.wildPokemon = wildPokemon;
         StartCoroutine(SetupBattle());
     }
 
     //carrega informações de textos das batalhas
     public IEnumerator SetupBattle()
     {
-        playerUnit.Setup();
-        playerHud.SetData(playerUnit.Pokemon);
+        playerUnit.Setup(playerParty.GetHealthyPokemon());
+        enemyUnit.Setup(wildPokemon);
 
-        enemyUnit.Setup();
-        enemyHud.SetData(enemyUnit.Pokemon);
+        partyScreen.Init();
 
         dialogBox.SetMoveNames(playerUnit.Pokemon.Moves);
 
@@ -42,87 +46,103 @@ public class BattleSystem : MonoBehaviour
         //texto quando aprece a batalha
         yield return dialogBox.TypeDialog($"Um {enemyUnit.Pokemon.Base.Name} selvagem apareceu");
 
-        PlayerAction();
+        ActionSelection();
+    }
+    
+    void BattleOver(bool won)
+    {
+        state = BattleState.BattleOver;
+        OnBattleOver(won);
     }
 
     //ação de lutar ou correr do player
-    void PlayerAction()
+    void ActionSelection()
     {
-        state = BattleState.PlayerAction;
-        StartCoroutine(dialogBox.TypeDialog("Escolha o que fazer"));
+        state = BattleState.ActionSelection;
+        dialogBox.SetDialog("Escolha o que fazer");
         dialogBox.EnableActionSelector(true);
     }
 
-    //mostrar a tela de habilidades
-    void PlayerMove()
+    void OpenPartyScreen()
     {
-        state = BattleState.PlayerMove;
+        state = BattleState.PartyScreen;
+        partyScreen.SetPartyData(playerParty.Pokemons);
+        partyScreen.gameObject.SetActive(true);
+    }
+
+    //mostrar a tela de habilidades
+    void MoveSelection()
+    {
+        state = BattleState.MoveSelection;
         dialogBox.EnableActionSelector(false);
         dialogBox.EnableDialogText(false);
         dialogBox.EnableMoveSelector(true);
     }
 
     //executa a ação de ataque utilizada
-    IEnumerator PerformPlayerMove()
+    IEnumerator PlayerMove()
     {
-        state = BattleState.Busy;
+        state = BattleState.PerformMove;
         var move = playerUnit.Pokemon.Moves[currentMove];
-        move.PP--;
-        yield return dialogBox.TypeDialog($"{playerUnit.Pokemon.Base.Name} usou {move.Base.Name}");
 
-        playerUnit.PlayAttackAnimation();
-        yield return new WaitForSeconds(1f);
-
-        enemyUnit.PlayHitAnimation();
-
-        var damageDetails = enemyUnit.Pokemon.TakeDamage(move, playerUnit.Pokemon);
-        yield return enemyHud.UpdateHP();
-        yield return ShowDamageDetails(damageDetails);
-
-        if (damageDetails.Fainted)
-        {
-            yield return dialogBox.TypeDialog($"{enemyUnit.Pokemon.Base.Name} foi nocauteado");
-            enemyUnit.PlayFaintAnimation();
-
-            yield return new WaitForSeconds(2f);
-            OnBattleOver(true);
-        }
-        else
-        {
+        yield return RunMove(playerUnit, enemyUnit, move);
+        
+        //se a luta nao mudar o status pelo RurMove, entao ira para o proximo passo
+        if(state == BattleState.PerformMove)
             StartCoroutine(EnemyMove());
-        }
     }
 
     //executa o ataque do inimigo
     IEnumerator EnemyMove()
     {
-        state = BattleState.EnemyMove;
+        state = BattleState.PerformMove;
 
         var move = enemyUnit.Pokemon.GetRandomMove();
-        move.PP--;
-        yield return dialogBox.TypeDialog($"{enemyUnit.Pokemon.Base.Name} usou {move.Base.Name}");
 
-        enemyUnit .PlayAttackAnimation();
+        yield return RunMove(enemyUnit, playerUnit, move);
+
+        //se a luta nao mudar o status pelo RurMove, entao ira para o proximo passo
+        if (state == BattleState.PerformMove)
+            ActionSelection();
+    }
+
+    //
+    IEnumerator RunMove(BattleUnit sourceUnit, BattleUnit targetUnit, Move move)
+    {
+        move.PP--;
+        yield return dialogBox.TypeDialog($"{sourceUnit.Pokemon.Base.Name} usou {move.Base.Name}");
+
+        sourceUnit.PlayAttackAnimation();
         yield return new WaitForSeconds(1f);
 
-        playerUnit.PlayHitAnimation();
+        targetUnit.PlayHitAnimation();
 
-        var damageDetails = playerUnit.Pokemon.TakeDamage(move, playerUnit.Pokemon);
-        yield return playerHud.UpdateHP();
+        var damageDetails = targetUnit.Pokemon.TakeDamage(move, sourceUnit.Pokemon);
+        yield return targetUnit.Hud.UpdateHP();
         yield return ShowDamageDetails(damageDetails);
 
         if (damageDetails.Fainted)
         {
-            yield return dialogBox.TypeDialog($"{playerUnit.Pokemon.Base.Name} foi nocauteado");
-            playerUnit.PlayFaintAnimation();
-
+            yield return dialogBox.TypeDialog($"{targetUnit.Pokemon.Base.Name} foi nocauteado");
+            targetUnit.PlayFaintAnimation();
             yield return new WaitForSeconds(2f);
-            OnBattleOver(false);
+
+            CheckForBattleOver(targetUnit);
+        }
+    }
+
+    void CheckForBattleOver(BattleUnit faintedUnit)
+    {
+        if (faintedUnit.IsPLayerUnit)
+        {
+            var nextPokemon = playerParty.GetHealthyPokemon();
+            if (nextPokemon != null)
+                OpenPartyScreen();
+            else
+                BattleOver(false);
         }
         else
-        {
-            PlayerAction();
-        }
+            BattleOver(true);
     }
 
     //mostrar texto se o ataque for critico/efetivo
@@ -132,36 +152,51 @@ public class BattleSystem : MonoBehaviour
             yield return dialogBox.TypeDialog("Um acerto critico!");
         if (damageDetails.TypeEffectiviness > 1f)
             yield return dialogBox.TypeDialog("Super efetivo");
-        else if (damageDetails.TypeEffectiviness < 1f) 
+        else if (damageDetails.TypeEffectiviness < 1f)
             yield return dialogBox.TypeDialog("Nao e efetivo");
     }
 
     //selecionar opções durate a batalha
     public void HandleUpdate()
     {
-        if (state == BattleState.PlayerAction)
+        if (state == BattleState.ActionSelection)
         {
             HandActionSelection();
         }
-        else if (state == BattleState.PlayerMove)
+        else if (state == BattleState.MoveSelection)
         {
             HandMoveSelection();
+        }
+        else if (state == BattleState.PartyScreen)
+        {
+            HandlePartySelection();
         }
     }
 
     //escolher entre as 2 opçoes diponives
+    //    if (Input.GetKeyDown(KeyCode.DownArrow))
+    //{
+    //    if(currentAction < 1)
+    //        ++currentAction;
+    //}
+    //else if (Input.GetKeyDown(KeyCode.UpArrow)) 
+    //{ 
+    //    if(currentAction > 0) 
+    //        --currentAction; 
+    //}
     void HandActionSelection()
     {
-        if (Input.GetKeyDown(KeyCode.DownArrow))
-        {
-            if(currentAction < 1)
-                ++currentAction;
-        }
-        else if (Input.GetKeyDown(KeyCode.UpArrow)) 
-        { 
-            if(currentAction > 0) 
-                --currentAction; 
-        }
+        //escolher entre 4 opçoes disponiveis
+        if (Input.GetKeyDown(KeyCode.RightArrow))
+            ++currentAction;
+        else if (Input.GetKeyDown(KeyCode.LeftArrow))
+            --currentAction;
+        else if (Input.GetKeyDown(KeyCode.DownArrow))
+            currentAction += 2;
+        else if (Input.GetKeyDown(KeyCode.UpArrow))
+            currentAction -= 2;
+
+        currentAction = Mathf.Clamp(currentAction, 0, 3);
 
         dialogBox.UpdateActionSelection(currentAction);
 
@@ -170,39 +205,38 @@ public class BattleSystem : MonoBehaviour
             //Lutar
             if (currentAction == 0)
             {
-                PlayerMove();
+                MoveSelection();
             }
-            //Correr
+            //Bag
             else if (currentAction == 1)
             {
-                
+
+            }
+            //Pokemon
+            if (currentAction == 2)
+            {
+                OpenPartyScreen();
+            }
+            //Correr
+            else if (currentAction == 3)
+            {
+
             }
         }
     }
 
-    //escolher entre as 4 ou menos opções disponiveis.
     void HandMoveSelection()
     {
         if (Input.GetKeyDown(KeyCode.RightArrow))
-        {
-            if (currentMove < playerUnit.Pokemon.Moves.Count -1)
-                ++currentMove;
-        }
+            ++currentMove;
         else if (Input.GetKeyDown(KeyCode.LeftArrow))
-        {
-            if (currentMove > 0)
-                --currentMove;
-        }
+            --currentMove;
         else if (Input.GetKeyDown(KeyCode.DownArrow))
-        {
-            if (currentMove < playerUnit.Pokemon.Moves.Count -2)
-                currentMove +=2;
-        }
+            currentMove += 2;
         else if (Input.GetKeyDown(KeyCode.UpArrow))
-        {
-            if (currentMove > 1)
-                currentMove -= 2;
-        }
+            currentMove -= 2;
+
+        currentMove = Mathf.Clamp(currentMove, 0, playerUnit.Pokemon.Moves.Count - 1);
 
         dialogBox.UpdateMoveSelection(currentMove, playerUnit.Pokemon.Moves[currentMove]);
 
@@ -210,8 +244,97 @@ public class BattleSystem : MonoBehaviour
         {
             dialogBox.EnableMoveSelector(false);
             dialogBox.EnableDialogText(true);
-            StartCoroutine(PerformPlayerMove());
+            StartCoroutine(PlayerMove());
+        }
+        else if (Input.GetKeyDown(KeyCode.X))
+        {
+            dialogBox.EnableMoveSelector(false);
+            dialogBox.EnableDialogText(true);
+            ActionSelection();
         }
     }
 
+    void HandlePartySelection()
+    {
+        if (Input.GetKeyDown(KeyCode.RightArrow))
+            ++currentMember;
+        else if (Input.GetKeyDown(KeyCode.LeftArrow))
+            --currentMember;
+        else if (Input.GetKeyDown(KeyCode.DownArrow))
+            currentMember += 2;
+        else if (Input.GetKeyDown(KeyCode.UpArrow))
+            currentMember -= 2;
+
+        currentMember = Mathf.Clamp(currentMember, 0, playerParty.Pokemons.Count - 1);
+
+        partyScreen.UpdateMemberSelection(currentMember);
+
+        if (Input.GetKeyDown(KeyCode.Z))
+        {
+            var selectedMember = playerParty.Pokemons[currentMember];
+            if (selectedMember.HP <= 0)
+            {
+                partyScreen.SetMessageText("Voce nao pode usar um pokemon nocauteado");
+                return;
+            }
+            if (selectedMember == playerUnit.Pokemon)
+            {
+                partyScreen.SetMessageText("Voce nao pode usar o mesmo pokemon");
+                return;
+            }
+
+            partyScreen.gameObject.SetActive(false);
+            state = BattleState.Busy;
+            StartCoroutine(SwitchPokemon(selectedMember));
+        }
+        else if (Input.GetKeyDown(KeyCode.X))
+        {
+            partyScreen.gameObject.SetActive(false);
+            ActionSelection();
+        }
+
+    }
+
+    IEnumerator SwitchPokemon(Pokemon newPokemon)
+    {
+        if(playerUnit.Pokemon.HP > 0)
+        {
+            yield return dialogBox.TypeDialog($"Volte {playerUnit.Pokemon.Base.Name}");
+            playerUnit.PlayFaintAnimation();
+            yield return new WaitForSeconds(2f);
+        }
+
+        playerUnit.Setup(newPokemon);
+
+        dialogBox.SetMoveNames(newPokemon.Moves);
+        yield return dialogBox.TypeDialog($"Vai {newPokemon.Base.Name}!");
+
+        StartCoroutine(EnemyMove());
+
+    }
 }
+
+
+
+
+////escolher entre as 4 disponives forma mais complexa
+//if (Input.GetKeyDown(KeyCode.RightArrow))
+//{
+//    if (currentMove < playerUnit.Pokemon.Moves.Count -1)
+//        ++currentMove;
+//}
+//else if (Input.GetKeyDown(KeyCode.LeftArrow))
+//{
+//    if (currentMove > 0)
+//        --currentMove;
+//}
+//else if (Input.GetKeyDown(KeyCode.DownArrow))
+//{
+//    if (currentMove < playerUnit.Pokemon.Moves.Count -2)
+//        currentMove +=2;
+//}
+//else if (Input.GetKeyDown(KeyCode.UpArrow))
+//{
+//    if (currentMove > 1)
+//        currentMove -= 2;
+//}

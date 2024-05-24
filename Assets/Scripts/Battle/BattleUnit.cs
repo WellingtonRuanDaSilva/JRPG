@@ -7,9 +7,17 @@ using DG.Tweening;
 //atualiza a imagem do pokemon que aparece na HUD
 public class BattleUnit : MonoBehaviour
 {
-    [SerializeField] PokemonBase _base;
-    [SerializeField] int level;
     [SerializeField] bool isPlayerUnit;
+    [SerializeField] BattleHud hud;
+
+    public bool IsPLayerUnit
+    {
+        get { return isPlayerUnit; }
+    }
+    public BattleHud Hud
+    {
+        get { return hud;  }
+    }
 
     public Pokemon Pokemon { get; set; }
 
@@ -23,13 +31,15 @@ public class BattleUnit : MonoBehaviour
         originalPos = image.transform.localPosition;
         originalColor = image.color;
     }
-    public void Setup()
+    public void Setup(Pokemon pokemon)
     {
-        Pokemon = new Pokemon(_base, level);
+        Pokemon = pokemon;
         if (isPlayerUnit) 
             image.sprite = Pokemon.Base.BackSprite;
         else
             image.sprite = Pokemon.Base.FrontSprite;
+
+        hud.SetData(pokemon);
 
         image.color = originalColor;
         PlayEnterAnimation();

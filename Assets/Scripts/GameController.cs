@@ -14,6 +14,7 @@ public class GameController : MonoBehaviour
 
     private void Start()
     {
+        //forma para chamar uma função para envento
         playerController.OnEncountered += StartBattle;
         battleSystem.OnBattleOver += EndBattle;
     }
@@ -24,7 +25,10 @@ public class GameController : MonoBehaviour
         battleSystem.gameObject.SetActive(true);
         worldCamera.gameObject.SetActive(false);
 
-        battleSystem.StartBattle();
+        var playerParty = playerController.GetComponent<PokemonParty>();
+        var wildPokemon = FindAnyObjectByType<MapArea>().GetComponent<MapArea>().GetRamdomWildPokemon();
+
+        battleSystem.StartBattle(playerParty, wildPokemon);
     }
 
     void EndBattle(bool won)
