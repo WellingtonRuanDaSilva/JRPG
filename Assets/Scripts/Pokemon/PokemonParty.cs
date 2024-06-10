@@ -31,4 +31,16 @@ public class PokemonParty : MonoBehaviour
         //retornando o pokemon que tem HP maior que 0 e Firstordefaul pegara o primeiro e se nao encontrar retorna null
         return pokemons.Where(x => x.HP > 0).FirstOrDefault();
     }
+
+    public void AddPokemon(Pokemon pokemon)
+    {
+        if (pokemons.Count < 6)
+        {
+            pokemons.Add(pokemon);
+        }
+        else
+        {
+            //FAZER AINDA: implementar o sistema de PC
+        }
+    }
 }

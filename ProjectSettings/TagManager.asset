@@ -16,7 +16,7 @@ TagManager:
   - Interactable
   - Player
   - FovLayer
-  - 
+  - Portal
   - 
   - 
   - 
@@ -49,4 +49,7 @@ TagManager:
     locked: 0
   - name: Player
     uniqueID: 2638876151
+    locked: 0
+  - name: Battle
+    uniqueID: 1894945709
     locked: 0

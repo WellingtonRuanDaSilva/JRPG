@@ -22,18 +22,20 @@ public class GameController : MonoBehaviour
     private void Start()
     {
         //forma para chamar uma função para envento
-        playerController.OnEncountered += StartBattle;
+        //Foi para LongGrass
+        //playerController.OnEncountered += StartBattle;
         battleSystem.OnBattleOver += EndBattle;
 
-        playerController.OnEnterTrainersView += (Collider2D trainerCollider) =>
-        {
-            var trainer = trainerCollider.GetComponentInParent<TrainerController>();
-            if (trainer != null) 
-            {
-                state = GameState.Cutscene;
-                StartCoroutine(trainer.TriggerTrainerBattle(playerController));
-            }
-        };
+        //refatorado para treinerfov
+        //playerController.OnEnterTrainersView += (Collider2D trainerCollider) =>
+        //{
+        //    var trainer = trainerCollider.GetComponentInParent<TrainerController>();
+        //    if (trainer != null) 
+        //    {
+        //        state = GameState.Cutscene;
+        //        StartCoroutine(trainer.TriggerTrainerBattle(playerController));
+        //    }
+        //};
 
         DialogManager.Instance.OnShowDialog += () =>
         {
@@ -47,7 +49,7 @@ public class GameController : MonoBehaviour
         };
     }
 
-    void StartBattle()
+    public void StartBattle()
     {
         state = GameState.Battle;
         battleSystem.gameObject.SetActive(true);
@@ -56,8 +58,12 @@ public class GameController : MonoBehaviour
         var playerParty = playerController.GetComponent<PokemonParty>();
         var wildPokemon = FindAnyObjectByType<MapArea>().GetComponent<MapArea>().GetRamdomWildPokemon();
 
-        battleSystem.StartBattle(playerParty, wildPokemon);
+        var wildPokemonCopy = new Pokemon(wildPokemon.Base, wildPokemon.Level);
+
+        battleSystem.StartBattle(playerParty, wildPokemonCopy);
     }
+
+    TrainerController trainer;
 
     public void StartTrainerBattle(TrainerController trainer)
     {
@@ -65,6 +71,7 @@ public class GameController : MonoBehaviour
         battleSystem.gameObject.SetActive(true);
         worldCamera.gameObject.SetActive(false);
 
+        this.trainer = trainer;
         var playerParty = playerController.GetComponent<PokemonParty>();
         var trainerParty = trainer.GetComponent<PokemonParty>();
 
@@ -72,8 +79,19 @@ public class GameController : MonoBehaviour
         battleSystem.StartTrainerBattle(playerParty, trainerParty);
     }
 
+    public void OnEnterTrainersView(TrainerController trainer)
+    {
+        state = GameState.Cutscene;
+        StartCoroutine(trainer.TriggerTrainerBattle(playerController));
+    }
     void EndBattle(bool won)
     {
+        if (trainer != null && won == true)
+        {
+            trainer.BattleLost();
+            trainer = null;
+        }
+
         state = GameState.FreeRoam;
         battleSystem.gameObject.SetActive(false);
         worldCamera.gameObject.SetActive(true);
