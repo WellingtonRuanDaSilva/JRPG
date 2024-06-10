@@ -9,8 +9,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] Sprite sprite;
     [SerializeField] string name;
 
-    const float offsetY = 0.3f;
-
     public event Action OnEncountered;
     public event Action<Collider2D> OnEnterTrainersView;
 
@@ -65,7 +63,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnMoveOver()
     {
-        var colliders = Physics2D.OverlapCircleAll(transform.position - new Vector3(0, offsetY), 0.2f, GameLayers.i.TriggerableLayers);
+        var colliders = Physics2D.OverlapCircleAll(transform.position - new Vector3(0, character.OffsetY), 0.2f, GameLayers.i.TriggerableLayers);
 
         foreach (var collider in colliders)
         {
@@ -110,6 +108,8 @@ public class PlayerController : MonoBehaviour
     {
         get => sprite;
     }
+
+    public Character Character => character;
 }
 
 ////Codigo refratorado para Character

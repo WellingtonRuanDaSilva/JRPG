@@ -9,6 +9,12 @@ EditorBuildSettings:
     path: Assets/Scenes/StartMenu.unity
     guid: 254ae634f96e4854d95e2d66c50ba138
   - enabled: 1
-    path: Assets/Scenes/Game.unity
+    path: Assets/Scenes/HomeTown.unity
     guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 1
+    path: Assets/Scenes/Route01.unity
+    guid: f8578947d19931f4ab006676bfcbc164
+  - enabled: 1
+    path: Assets/Scenes/House01.unity
+    guid: 2c0417a4bde6bb84a9dbfe4d422502aa
   m_configObjects: {}

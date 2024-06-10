@@ -7,7 +7,7 @@ public class ScenesManager : MonoBehaviour
 {
     public void PlayGame()
     {
-        StartCoroutine(ChanceScene("Game"));
+        StartCoroutine(ChanceScene("HomeTown"));
         //SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
 
