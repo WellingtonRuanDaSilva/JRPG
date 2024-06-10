@@ -6,7 +6,11 @@ using static UnityEngine.RuleTile.TilingRuleOutput;
 
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] Sprite sprite;
+    [SerializeField] string name;
+
     public event Action OnEncountered;
+    public event Action<Collider2D> OnEnterTrainersView;
 
     private Vector2 input;
 
@@ -32,7 +36,7 @@ public class PlayerController : MonoBehaviour
             //se o movimento não é 0 vai mover para o destino do input
             if (input != Vector2.zero)
             {
-                StartCoroutine(character.Move(input, CheckForEncounters));
+                StartCoroutine(character.Move(input, OnMoveOver));
             }
         }
 
@@ -53,10 +57,15 @@ public class PlayerController : MonoBehaviour
         var collider = Physics2D.OverlapCircle(interactPos, 0.3f, GameLayers.i.InteractableLayer);
         if (collider != null)
         {
-            collider.GetComponent<Interactable>()?.Interact();
+            collider.GetComponent<Interactable>()?.Interact(transform);
         }
     }
 
+    private void OnMoveOver()
+    {
+        CheckForEncounters();
+        CheckIfInTrainerView();
+    }
     //verificar se esta na grama para encontro de batalhas
     private void CheckForEncounters()
     {
@@ -68,6 +77,26 @@ public class PlayerController : MonoBehaviour
                 OnEncountered();
             }
         }
+    }
+
+    private void CheckIfInTrainerView()
+    {
+
+        var collider = Physics2D.OverlapCircle(transform.position, 0.2f, GameLayers.i.FovLayer);
+        if (collider != null)
+        {
+            character.Animator.IsMoving = false;
+            OnEnterTrainersView?.Invoke(collider);
+        }
+    }
+
+    public string Name
+    {
+        get => name;
+    }
+    public Sprite Sprite
+    {
+        get => sprite;
     }
 }
 
