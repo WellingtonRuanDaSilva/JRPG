@@ -129,7 +129,11 @@ public enum Stat
     Defense,
     SpDefense,
     SpAttack,
-    Speed
+    Speed,
+
+    //nao sao realmente status, vao ser usados para influenciar moveAccuracy
+    Accuracy,
+    Evasion
 }
 
 public class TypeChart

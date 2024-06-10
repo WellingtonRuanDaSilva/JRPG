@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3a88e9ef577a944ab318cfb306d79bb, type: 3}
+  m_Name: Pickachu
+  m_EditorClassIdentifier: 
+  name: Pickachu
+  description: 
+  frontSprite: {fileID: 21300000, guid: 9644f50bd6483754491c2fb2549972a6, type: 3}
+  backSprite: {fileID: 21300000, guid: 9f5deed68fbcf354b9131e893b70e334, type: 3}
+  type1: 4
+  type2: 0
+  maxHp: 35
+  attack: 55
+  defense: 40
+  spAttack: 50
+  spDefense: 50
+  speed: 90
+  learnableMoves:
+  - moveBase: {fileID: 11400000, guid: d32d4554e315b6540998681181636d6c, type: 2}
+    level: 1
+  - moveBase: {fileID: 11400000, guid: 0306348018bdf8b449507d1858d238c4, type: 2}
+    level: 1
+  - moveBase: {fileID: 11400000, guid: 36b761f8807c1644f8ca7dd8ebf7f5a1, type: 2}
+    level: 10

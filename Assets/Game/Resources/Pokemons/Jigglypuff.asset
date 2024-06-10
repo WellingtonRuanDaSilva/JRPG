@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3a88e9ef577a944ab318cfb306d79bb, type: 3}
+  m_Name: Jigglypuff
+  m_EditorClassIdentifier: 
+  name: Jigglypuff
+  description: 
+  frontSprite: {fileID: 21300000, guid: 74d8d8dca35a234449af61a2ecbf6655, type: 3}
+  backSprite: {fileID: 21300000, guid: 1f72be0287a17cc4692c43a33b3d7748, type: 3}
+  type1: 1
+  type2: 0
+  maxHp: 115
+  attack: 45
+  defense: 20
+  spAttack: 45
+  spDefense: 20
+  speed: 20
+  learnableMoves:
+  - moveBase: {fileID: 11400000, guid: d32d4554e315b6540998681181636d6c, type: 2}
+    level: 1
+  - moveBase: {fileID: 11400000, guid: 0306348018bdf8b449507d1858d238c4, type: 2}
+    level: 1
+  - moveBase: {fileID: 11400000, guid: 78684861423f43e419de185ad30442a0, type: 2}
+    level: 10
