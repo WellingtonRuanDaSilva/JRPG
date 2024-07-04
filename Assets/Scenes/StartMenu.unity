@@ -38,7 +38,6 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -605,7 +604,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -3.7996, y: 64.7689}
+  m_AnchoredPosition: {x: -3.7995, y: -0.000022888}
   m_SizeDelta: {x: 577.3787, y: 412.7823}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &449234827
@@ -628,15 +627,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Daniela Faversani Barroso RA 942212898
-
-    John Lenne da Silva Galli
-    RA 942212784
-
-    Rafaela Bianek Pierin RA 942213407
-
-    Wellington Ruan da
-    Silva RA 942211696
+  m_text: 'Wellington Ruan da Silva
 
 '
   m_isRightToLeft: 0
