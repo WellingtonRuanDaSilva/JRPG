@@ -11,6 +11,7 @@ public class GameController : MonoBehaviour
     [SerializeField] BattleSystem battleSystem;
     [SerializeField] Camera worldCamera;
 
+
     GameState state;
 
     GameState stateBeforePause;
@@ -24,7 +25,7 @@ public class GameController : MonoBehaviour
     }
     private void Start()
     {
-        //forma para chamar uma função para envento
+        //forma para chamar uma funï¿½ï¿½o para envento
         //Foi para LongGrass
         //playerController.OnEncountered += StartBattle;
         battleSystem.OnBattleOver += EndBattle;
